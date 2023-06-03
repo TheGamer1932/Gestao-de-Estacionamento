@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Estacionamento Minuteman</title>
+    <style>
+    /* Reset de estilos padrão */
+    body, form, h1, h2, label, input, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos básicos para o corpo do documento */
+body {
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+/* Estilos para o formulário */
+form {
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Estilos para os títulos */
+h1 {
+    text-align: center;
+    margin-bottom: 3px;
+    padding: 20px;
+    background-color: #51ae12;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+/* Estilos para os rótulos dos campos de entrada */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Estilos para os campos de entrada de texto e número */
+input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #000000;
+    border-radius: 3px;
+    margin-bottom: 10px;
+}
+
+/* Estilos para o botão de registrar entrada/saída */
+button {
+    background-color: #51ae12;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Estilos para o contêiner de saída de informações */
+#output {
+    background-color: #51ae12;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+/* Estilos para os preços */
+label[for="precoPorHora"], label[for="precoPorDia"], label[for="precoPeriodoEspecifico"] {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="number"] {
+    width: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin-bottom: 10px;
+}
+    </style>
+    <script>
+        let veiculos = [];
+
+        function registrarEntrada() {
+            let placa = document.getElementById("placa").value;
+            let modelo = document.getElementById("modelo").value;
+            let cor = document.getElementById("cor").value;
+            let horaEntrada = new Date();
+            let veiculo = { placa, modelo, cor, horaEntrada };
+            veiculos.push(veiculo);
+            document.getElementById("entradaForm").reset();
+        }
+
+        function registrarSaida() {
+            let placa = document.getElementById("placaSaida").value;
+            let veiculo = veiculos.find(v => v.placa === placa);
+            if (veiculo) {
+                let horaSaida = new Date();
+                let tempoPermanencia = Math.floor((horaSaida - veiculo.horaEntrada) / (1000 * 60 * 60));
+                let valorAPagar = calcularValorAP(tempoPermanencia);
+                let output = document.getElementById("output");
+                output.innerHTML = "";
+                output.innerHTML += "Placa do Veículo: " + veiculo.placa + "<br>";
+                output.innerHTML += "Modelo do Veículo: " + veiculo.modelo + "<br>";
+                output.innerHTML += "Cor do Veículo: " + veiculo.cor + "<br>";
+                output.innerHTML += "Tempo de Permanência: " + tempoPermanencia + " horas<br>";
+                output.innerHTML += "Valor a Pagar: R$" + valorAPagar.toFixed(2);
+                // Remover o veículo do array de veículos
+                veiculos = veiculos.filter(v => v.placa !== veiculo.placa);
+                document.getElementById("saidaForm").reset();
+            } else {
+                document.getElementById("output").innerHTML = "Veículo não encontrado";
+            }
+        }
+
+        // Função para calcular o valor a ser pago com base no tempo de permanência
+        function calcularValorAP(tempoPermanencia) {
+            let precoPorHora = parseFloat(document.getElementById("precoPorHora").value);
+            let precoPorDia = parseFloat(document.getElementById("precoPorDia").value);
+            let precoPeriodoEspecifico = parseFloat(document.getElementById("precoPeriodoEspecifico").value);
+
+            if (tempoPermanencia <= 1) {
+                return precoPorHora;
+            } else if (tempoPermanencia <= 24) {
+                return precoPorDia;
+            } else {
+                return precoPeriodoEspecifico;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Estacionamento Minuteman</h1>
+    <h2>Registro de Entrada</h2>
+    <form id="entradaForm">
+        <label for="placa">Placa do Veículo:</label>
+        <input type="text" id="placa" name="placa"><br>
+        <label for="modelo">Modelo do Veículo:</label>
+        <input type="text" id="modelo" name="modelo"><br>
+        <label for="cor">Cor do Veículo:</label>
+        <input type="text" id="cor" name="cor"><br>
+        <button type="button" onclick="registrarEntrada()">Registrar Entrada</button>
+    </form>
+
+    <h2>Registro de Saída</h2>
+    <form id="saidaForm">
+        <label for ="placaSaida">Placa do Veículo:</label>
+        <input type="text" id="placaSaida" name="placaSaida"><br>
+        <button type="button" onclick="registrarSaida()">Registrar Saída</button>
+        </form>
+        <h2>Informações do Veículo</h2>
+        <div id="output"></div>
+
+        <h2>Configurações</h2>
+        <label for="precoPorHora">Preço por Hora:</label>
+        <input type="number" id="precoPorHora" name="precoPorHora"><br>
+        <label for="precoPorDia">Preço por Dia:</label>
+        <input type="number" id="precoPorDia" name="precoPorDia"><br>
+        <label for="precoPeriodoEspecifico">Preço por Período Específico:</label>
+        <input type="number" id="precoPeriodoEspecifico" name="precoPeriodoEspecifico"><br>
+    </body>
+</html>
